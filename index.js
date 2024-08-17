@@ -42,21 +42,20 @@ async function run() {
       }
     });
 
-    //get all/limited premium biodata
+    // Get all/limited premium biodata
     app.get("/biodata/premium", async (req, res) => {
       try {
-        const { limit, ageOrder } = req.query;
-
+        const { limit = 6, ageOrder = "asc" } = req.query;
         const result = await biodataCollection
           .find({ biodata_status: "premium" })
-          .limit(limit || 9999)
-          .sort(ageOrder == "asc" ? { age: 1 } : { age: -1 })
+          .limit(parseInt(limit)) // Ensure limit is a number
+          .sort({ age: ageOrder === "asc" ? 1 : -1 })
           .toArray();
 
         res.status(200).send(result);
       } catch (error) {
         console.log(error);
-        res.status(500).send(error);
+        res.status(500).send({ error: "Internal Server Error" });
       }
     });
 
@@ -87,7 +86,7 @@ async function run() {
         console.log(error);
         res.status(500).send(error);
       }
-    });
+    }); 
 
     // get female count
     app.get("/biodata/female", async (req, res) => {
@@ -120,7 +119,7 @@ async function run() {
     });
 
     //get all success stories
-    app.get("/biodata/success_stories", async (req, res) => {
+    app.get("/success_stories", async (req, res) => {
       try {
         const result = await successStoriesCollection.find().toArray();
         res.status(200).send(result);
